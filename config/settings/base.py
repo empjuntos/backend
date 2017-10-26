@@ -58,6 +58,7 @@ THIRD_PARTY_APPS = [
     'rest_auth.registration',
     'corsheaders',
     'captcha',
+    'reportlab',  # PDF generator
 ]
 
 # Apps specific for this project go here.
