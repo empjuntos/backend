@@ -9,9 +9,14 @@ from .models import User
 
 from allauth.account.views import SignupView
 from allauth.account.forms import LoginForm
-from allauth.socialaccount.views import SocialLogin
+from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
+from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
+from rest_auth.views import LoginView
+from rest_auth.registration.views import SocialLoginView
+from rest_auth.social_serializers import TwitterLoginSerializer
 
 from .serializers import UserSerializer
+
 
 class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
@@ -33,13 +38,6 @@ class LoginSignupView(SignupView):
 
     def get_success_url(self):
         return self.success_url
-
-
-class UserDetailView(LoginRequiredMixin, DetailView):
-    model = User
-    # These next two lines tell the view to index lookups by username
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
 
 
 class UserRedirectView(LoginRequiredMixin, RedirectView):
@@ -67,8 +65,10 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         return User.objects.get(username=self.request.user.username)
 
 
-class UserListView(LoginRequiredMixin, ListView):
-    model = User
-    # These next two lines tell the view to index lookups by username
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
+class FacebookLogin(SocialLoginView):
+    adapter_class = FacebookOAuth2Adapter
+
+
+class TwitterLogin(LoginView):
+    serializer_class = TwitterLoginSerializer
+    adapter_class = TwitterOAuthAdapter
