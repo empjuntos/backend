@@ -42,10 +42,10 @@ class ConversationViewSet(ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
-class ConversationReportCSVViewSet(ModelViewSet):
+class ConversationReportCSVViewSet(ReadOnlyModelViewSet):
     serializer_class = ConversationReportSerializer
     queryset = Conversation.objects.all()
-    renderer_classes = (renderers.CSVRenderer, )
+    renderer_classes = (renderers.CSVRenderer,)
 
 
 class ConversationReportViewSet(ModelViewSet):
@@ -93,6 +93,12 @@ class NextCommentViewSet(RetrieveModelMixin, GenericViewSet):
 class CommentReportViewSet(ModelViewSet):
     serializer_class = CommentReportSerializer
     queryset = Comment.objects.all()
+
+
+class CommentReportCSVViewSet(ReadOnlyModelViewSet):
+    serializer_class = CommentReportSerializer
+    queryset = Comment.objects.all()
+    renderer_classes = (renderers.CSVRenderer,)
 
 
 class VoteViewSet(AuthorAsCurrentUserMixin, ModelViewSet):
