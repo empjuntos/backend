@@ -10,6 +10,8 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet, ReadOnlyModelV
 from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.settings import api_settings
+from rest_framework_csv import renderers
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Conversation, Comment, Vote
@@ -38,6 +40,12 @@ class ConversationViewSet(ModelViewSet):
     serializer_class = ConversationSerializer
     queryset = Conversation.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+
+class ConversationReportCSVViewSet(ModelViewSet):
+    serializer_class = ConversationReportSerializer
+    queryset = Conversation.objects.all()
+    renderer_classes = (renderers.CSVRenderer, )
 
 
 class ConversationReportViewSet(ModelViewSet):
