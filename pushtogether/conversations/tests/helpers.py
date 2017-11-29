@@ -7,6 +7,7 @@ from django.urls import reverse
 from pushtogether.conversations.models import (
     Conversation,
     Comment,
+    Notification,
     Vote,
 )
 
@@ -45,6 +46,15 @@ def create_valid_comment(conversation, user, approval=Comment.APPROVED):
     )
     comment.save()
     return comment
+
+def create_valid_notification(user):
+    notification = Notification.objects.create(
+        user=user,
+        title="test_title",
+        description="test_description",
+    )
+    notification.save()
+    return notification
 
 def create_valid_comments(number, conversation, user, approval=Comment.APPROVED):
     return [create_valid_comment(conversation, user, approval)

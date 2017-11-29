@@ -16,6 +16,7 @@ from .helpers import (
     create_valid_user,
     create_valid_conversation,
     create_valid_comment,
+    create_valid_notification,
     create_valid_comments,
     create_valid_vote
 )
@@ -272,6 +273,15 @@ class TestConversation:
             user)
 
         assert user_partipation_ratio == 0
+
+    def test_create_valid_notification(self, user):
+        old_counter = Notification.count()
+        create_valid_notification(user)
+        new_counter = Notification.count()
+
+        assert old_counter == 0
+        assert new_counter == 1
+
 
 
 class TestVote:

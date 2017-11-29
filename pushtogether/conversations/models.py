@@ -274,6 +274,39 @@ class Comment(models.Model):
     def total_votes(self):
         return self.votes.count()
 
+class Notification(models.Model):
+
+    title = models.CharField(_("Title"), max_length=255, blank=False)
+    description = models.TextField(_('Description'), blank=False)
+    url = models.CharField(_('Notification url'), max_length=255, null=True, blank=True)
+    seen = models.BooleanField(_('Have Seen'), default=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='notifications')
+    image = models.ImageField(
+        _('Notification image'),
+        upload_to='notifications',
+        null=True, blank=True)
+    created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
+
+    def __str__(self):
+        return self.description
+
+#    @property
+#    def agree_votes(self):
+#        return self.votes.filter(value=Vote.AGREE).count()
+#
+#    @property
+#    def disagree_votes(self):
+#        return self.votes.filter(value=Vote.DISAGREE).count()
+#
+#    @property
+#    def pass_votes(self):
+#        return self.votes.filter(value=Vote.PASS).count()
+#
+#    @property
+#    def total_votes(self):
+#        return self.votes.count()
+
 
 class Vote(models.Model):
     # Be aware this is the oposite of polis. Eg. in polis, agree is -1.

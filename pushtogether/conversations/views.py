@@ -14,12 +14,13 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Conversation, Comment, Vote
+from .models import Conversation, Comment, Notification, Vote
 from .serializers import (
     VoteSerializer,
     ConversationSerializer,
     ConversationReportSerializer,
     CommentSerializer,
+    NotificationSerializer,
     CommentApprovalSerializer,
     CommentReportSerializer,
     AuthorSerializer,
@@ -91,6 +92,51 @@ class CommentViewSet(viewsets.ModelViewSet):
             return CommentApprovalSerializer
         else:
             return self.serializer_class
+
+    def get_permissions(self):
+        if self.action in ('update', 'partial_update'):
+            self.permission_classes = [permissions.IsAdminUser, ]
+        return super(self.__class__, self).get_permissions()
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+    filter_backends = (DjangoFilterBackend, )
+    filter_fields = ('polis_id', 'conversation__id',)
+    permission_classes = (permissions.IsAuthenticated,)
+
+#    def create(self, request, *args, **kwargs):
+#        serializer = self.get_serializer(data=request.data)
+#        if serializer.is_valid():
+#            notification = Notification.objects.get(pk=request.data['notification'])
+#            conversation_nudge = conversation.get_nudge_status(self.request.user)
+#            response_data = {"nudge": conversation_nudge.value}
+#            if conversation_nudge.value['errors']:
+#                return Response(response_data, status=conversation_nudge.value['status_code'])
+#            else:
+#                self.perform_create(serializer)
+#                headers = self.get_success_headers(serializer.data)
+#                self.create
+#                response_data.update(serializer.data)
+#                return Response(response_data, headers=headers,
+#                                status=conversation_nudge.value['status_code'])
+#        else:
+#            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = super(NotificationViewSet, self).get_queryset()
+
+        # TODO: uncomment this when
+        # if user.is_authenticated and not user.is_superuser:
+        #     queryset = queryset.filter(author=user)
+        return queryset
+
+    def get_serializer_class(self):
+        return self.serializer_class
 
     def get_permissions(self):
         if self.action in ('update', 'partial_update'):

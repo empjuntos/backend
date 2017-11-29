@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Conversation, Comment, Vote
+from .models import Conversation, Comment, Notification, Vote
 
 
 class CommentInline(admin.TabularInline):
@@ -26,6 +26,10 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ['conversation', 'approval']
     inlines = [VoteInline]
 
+class NotificationAdmin(admin.ModelAdmin):
+    fields = ['title', 'description', 'url', 'seen', 'user', 'image']
+    list_display = ['id', 'title', 'description', 'user', 'created_at']
 
 admin.site.register(Conversation, ConversationAdmin)
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(Notification, NotificationAdmin)

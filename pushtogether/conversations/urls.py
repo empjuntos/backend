@@ -3,6 +3,7 @@ from .views import (
     ConversationViewSet,
     ConversationReportViewSet,
     CommentViewSet,
+    NotificationViewSet,
     NextCommentViewSet,
     CommentReportViewSet,
     VoteViewSet,
@@ -13,6 +14,7 @@ router = SimpleRouter()
 router.register(r'authors', AuthorViewSet)
 router.register(r'conversations', ConversationViewSet, base_name='conversation')
 router.register(r'comments', CommentViewSet)
+router.register(r'notifications', NotificationViewSet)
 router.register(r'votes', VoteViewSet)
 router.register(r'conversations-report', ConversationReportViewSet,
                 base_name='conversation-report')

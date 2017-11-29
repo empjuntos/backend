@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import routers, serializers, viewsets
 
-from .models import Conversation, Comment, Vote
+from .models import Conversation, Comment, Notification, Vote
 
 
 User = get_user_model()
@@ -93,6 +93,14 @@ class CommentSerializer(serializers.ModelSerializer):
                   'approval', 'votes', 'created_at', 'rejection_reason')
         read_only_fields = ('id', 'author', 'votes')
 
+class NotificationSerializer(serializers.ModelSerializer):
+    user = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = ('id', 'title', 'description', 'url', 'seen', 
+                   'user', 'image', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'user')
 
 class CommentApprovalSerializer(serializers.ModelSerializer):
 
