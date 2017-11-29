@@ -105,24 +105,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
     filter_fields = ('polis_id', 'conversation__id',)
     permission_classes = (permissions.IsAuthenticated,)
 
-#    def create(self, request, *args, **kwargs):
-#        serializer = self.get_serializer(data=request.data)
-#        if serializer.is_valid():
-#            notification = Notification.objects.get(pk=request.data['notification'])
-#            conversation_nudge = conversation.get_nudge_status(self.request.user)
-#            response_data = {"nudge": conversation_nudge.value}
-#            if conversation_nudge.value['errors']:
-#                return Response(response_data, status=conversation_nudge.value['status_code'])
-#            else:
-#                self.perform_create(serializer)
-#                headers = self.get_success_headers(serializer.data)
-#                self.create
-#                response_data.update(serializer.data)
-#                return Response(response_data, headers=headers,
-#                                status=conversation_nudge.value['status_code'])
-#        else:
-#            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
@@ -130,9 +112,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
         user = self.request.user
         queryset = super(NotificationViewSet, self).get_queryset()
 
-        # TODO: uncomment this when
-        # if user.is_authenticated and not user.is_superuser:
-        #     queryset = queryset.filter(author=user)
         return queryset
 
     def get_serializer_class(self):

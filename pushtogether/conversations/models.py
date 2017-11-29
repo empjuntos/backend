@@ -291,22 +291,6 @@ class Notification(models.Model):
     def __str__(self):
         return self.description
 
-#    @property
-#    def agree_votes(self):
-#        return self.votes.filter(value=Vote.AGREE).count()
-#
-#    @property
-#    def disagree_votes(self):
-#        return self.votes.filter(value=Vote.DISAGREE).count()
-#
-#    @property
-#    def pass_votes(self):
-#        return self.votes.filter(value=Vote.PASS).count()
-#
-#    @property
-#    def total_votes(self):
-#        return self.votes.count()
-
 
 class Vote(models.Model):
     # Be aware this is the oposite of polis. Eg. in polis, agree is -1.
