@@ -289,7 +289,6 @@ class Vote(models.Model):
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='votes')
     comment = models.ForeignKey(Comment, related_name='votes')
-    polis_id = models.IntegerField(_('Polis id'), null=True, blank=True)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     value = models.IntegerField(
         _('Value'),

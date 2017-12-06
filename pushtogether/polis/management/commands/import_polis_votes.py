@@ -6,12 +6,13 @@ from django.db import transaction
 
 import csv
 
+
 class Command(BaseCommand):
     help = 'import polis votes to EJ backend'
 
     def add_arguments(self, parser):
         parser.add_argument('votes', type=str,
-            help='Path to the votes csv file to import')
+                            help='Path to the votes csv file to import')
 
     def handle(self, *args, **options):
         csv_file_votes_path = options['votes']
@@ -21,7 +22,6 @@ class Command(BaseCommand):
     @transaction.atomic
     def create_votes(self, csv_file_votes_path):
         with open(csv_file_votes_path, 'r') as csv_file_votes:
-            conversation_id = 7
             readf = csv.DictReader(csv_file_votes)
             count = 0
             for row in readf:
@@ -29,28 +29,36 @@ class Command(BaseCommand):
                 comment_id = row.get('comment_id')
                 vote = self.get_vote_value(row.get('vote'))
                 created = row.get('created')
-                vote_id = row.get('vote_id')
+                conversation_slug = row.get('conversation_slug')
                 user = self.find_user_by_xid(xid)
                 if not user:
                     continue
 
                 try:
-                    comment = Comment.objects.get(polis_id=comment_id, conversation=conversation_id)
-                except  Comment.DoesNotExist:
+                    conversation = Conversation.objects.get(polis_slug=conversation_slug)
+                except Conversation.DoesNotExist:
+                    self.stdout.write('conversation does not exist, polis_slug: ' + conversation_slug)
+                    continue
+
+                try:
+                    comment = Comment.objects.get(polis_id=comment_id,
+                                                  conversation=conversation.id)
+                except Comment.DoesNotExist:
                     self.stdout.write('comment does not exist, polis_id: ' + comment_id)
                     continue
 
                 try:
+                    vote = Vote.objects.get(author=user, comment=comment,
+                                            conversation_id=conversation.id)
+                except Vote.DoesNotExist:
                     with transaction.atomic():
-                        vote = Vote.objects.create(comment=comment,
-                            author=user, value=vote, polis_id=vote_id, created_at=created)
+                        vote = Vote.objects.create(comment=comment, value=vote,
+                                                   author=user,
+                                                   created_at=created)
                     print('created vote, polis_id:' + str(vote.polis_id))
-                except IntegrityError as e:
-                    vote = Vote.objects.get(comment=comment, author=user)
-                    print('found vote, polis_id: ' + str(vote.polis_id))
-                    continue
-
-                count += 1
+                    count += 1
+                else:
+                    print('Vote already on database. ID:' + vote.id)
 
             self.stdout.write('Votes created: ' + str(count))
 
@@ -58,11 +66,11 @@ class Command(BaseCommand):
         if xid:
             try:
                 user = User.objects.get(id=xid)
-            except  User.DoesNotExist:
+            except User.DoesNotExist:
                 self.stdout.write('user does not exist')
                 user = None
         else:
-            #TODO get user with admin id
+            #  TODO get user with admin id
             user = User.objects.get(id=1)
         return user
 
