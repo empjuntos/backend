@@ -66,7 +66,7 @@ LOCAL_APPS = [
     'pushtogether.users.apps.UsersConfig',
     'pushtogether.polis.apps.PolisConfig',
     'pushtogether.conversations.apps.ConversationsConfig',
-
+    'pushtogether.math.apps.MathConfig',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^api/profile/', include('pushtogether.users.urls', namespace='users')),
     url(r'^polis/', include('pushtogether.polis.urls', namespace='polis')),
     url(r'^api/', include('pushtogether.conversations.urls', namespace='v1')),
-    url(r'^jobs/', include('pushtogether.math.urls', namespace='jobs')),
+    url(r'^api/math/', include('pushtogether.math.urls', namespace='math')),
     url(r'^api/auth/facebook/$', FacebookLogin.as_view(), name='fb_login'),
     url(r'^api/auth/twitter/$', TwitterLogin.as_view(), name='tw_login'),
     url(r'^rest-auth/', include('rest_auth.urls')),
