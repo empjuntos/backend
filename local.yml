@@ -4,6 +4,21 @@ volumes:
   db_data: {}
 
 services:
+
+  redis:
+    image: redis:2.8.19
+    hostname: redis
+
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3.6.0
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    ports:
+      - "5672:5672"  # we forward this port because it's useful for debugging
+      - "15672:15672"  # here, we can access rabbitmq management plugin
+
   django:
     build:
       context: .
@@ -15,6 +30,10 @@ services:
     environment:
       - POSTGRES_USER=pushtogether
       - USE_DOCKER=yes
+    links:
+      - postgres
+      - rabbit
+      - redis
     ports:
       - "8000:8000"
     command: /start.sh
@@ -26,4 +45,16 @@ services:
     environment:
       - POSTGRES_USER=pushtogether
 
-
+  worker:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    command: ./run_celery.sh
+    volumes:
+      - .:/app
+    links:
+      - postgres
+      - rabbit
+      - redis
+    depends_on:
+      - rabbit
