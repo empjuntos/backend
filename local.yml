@@ -11,7 +11,7 @@ services:
 
   rabbit:
     hostname: rabbit
-    image: rabbitmq:3.6.0
+    image: rabbitmq:3.6.14-management
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=mypass
@@ -19,7 +19,14 @@ services:
       - "5672:5672"  # we forward this port because it's useful for debugging
       - "15672:15672"  # here, we can access rabbitmq management plugin
 
-  django:
+  postgres:
+    image: postgres:9.6
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=pushtogether
+
+  django: &django
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
@@ -38,18 +45,8 @@ services:
       - "8000:8000"
     command: /start.sh
 
-  postgres:
-    image: postgres:9.6
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=pushtogether
-
   worker:
-    build:
-      context: .
-      dockerfile: ./compose/local/django/Dockerfile
-    command: ./run_celery.sh
+    << : *django
     volumes:
       - .:/app
     links:
@@ -57,4 +54,22 @@ services:
       - rabbit
       - redis
     depends_on:
+      - django
       - rabbit
+    ports: []
+    command: compose/local/worker/run_celery.sh
+
+  flower:
+    << : *django
+    depends_on:
+      - django
+      - rabbit
+      - redis
+    volumes:
+      - .:/app
+    links:
+      - rabbit
+      - redis
+    ports:
+      - "8001:8001"
+    command: compose/local/flower/start_flower.sh
