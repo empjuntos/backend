@@ -22,8 +22,12 @@ class Command(BaseCommand):
     @transaction.atomic
     def create_comments(self, csv_file_comments_path):
         with open(csv_file_comments_path, 'r') as csv_file_comments:
-            readf = csv.DictReader(csv_file_comments)
+            readf = csv.DictReader(csv_file_comments, delimiter=',')
             count = 0
+            comments_from_polis = []
+            conversations_not_found = []
+            comments_created = []
+            comments_already_on_db = []
             for row in readf:
                 xid = row.get('xid')
                 comment_id = row.get('comment_id')
@@ -38,8 +42,15 @@ class Command(BaseCommand):
                 try:
                     conversation = Conversation.objects.get(polis_slug=conversation_slug)
                 except Conversation.DoesNotExist:
-                    self.stdout.write('conversation does not exist, polis_slug: ' + conversation_slug)
+                    conversations_not_found.append(conversation_slug)
                     continue
+
+                # Check comments that are probably saved in wrong conversations
+
+                # comment = Comment.objects.get(polis_id=comment_id)
+                # if comment.conversation.id != conversation_id:
+                #     self.stdout.write('Possível comentário em conversa errada: ')
+                #     self.stdout.write('Id: ' + str(comment.id))
 
                 try:
                     comment = Comment.objects.get(conversation=conversation.id,
@@ -49,12 +60,18 @@ class Command(BaseCommand):
                         comment = Comment.objects.create(author=user, conversation=conversation,
                                                          content=txt, polis_id=comment_id, approval=mod,
                                                          created_at=created)
-                    print('created comment, polis_id:' + comment.polis_id)
+                    comments_from_polis.append(comment.id)
+                    comments_created.append(comment.id)
                     count += 1
                 else:
-                    print('Comment already on database. ID:' + comment.id)
+                    comments_from_polis.append(comment.id)
+                    comments_already_on_db.append(comment.id)
 
-            self.stdout.write('Comments created: ' + str(count))
+            self.stdout.write('Total de comentários criados: ' + str(count))
+            self.print_final_report(conversations_not_found, comments_created,
+                                    comments_already_on_db)
+            self.print_divergences_db_polis(comments_from_polis)
+
 
     def find_user_by_xid(self, xid):
         if xid:
@@ -75,3 +92,17 @@ class Command(BaseCommand):
             -1: 'REJECTED',
         }
         return switcher.get(mod, 'nothing')
+
+    def print_divergences_db_polis(self, comments_from_polis):
+        divergent_comments = Comment.objects.exclude(id__in=set(comments_from_polis))
+        self.stdout.write('Comments on our db but not on polis\':')
+        print(list(divergent_comments.values_list('id', flat=True)))
+
+    def print_final_report(self, conversations_not_found, comments_created,
+                           comments_already_on_db):
+        self.stdout.write('Conversas não encontradas:')
+        print(set(conversations_not_found))
+        self.stdout.write('Comentários criados:')
+        print(set(comments_created))
+        self.stdout.write('Comentários que já estavam no banco:')
+        print(set(comments_already_on_db))
