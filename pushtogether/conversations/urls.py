@@ -7,6 +7,7 @@ from .views import (
     CommentReportViewSet,
     VoteViewSet,
     AuthorViewSet,
+    RandomConversationViewSet,
 )
 
 router = SimpleRouter()
@@ -20,5 +21,7 @@ router.register(r'comments-report', CommentReportViewSet,
                 base_name='comment-report')
 router.register(r'next_comment', NextCommentViewSet,
                 base_name='conversation-next-comment')
+router.register(r'random_conversation', RandomConversationViewSet,
+                base_name='conversation-random')
 
 urlpatterns = router.urls

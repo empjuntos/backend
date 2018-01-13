@@ -14,6 +14,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
+from random import randint
+
 from .models import Conversation, Comment, Vote
 from .serializers import (
     VoteSerializer,
@@ -106,6 +108,21 @@ class CommentViewSet(viewsets.ModelViewSet):
             self.permission_classes = [permissions.IsAdminUser, ]
         return super(self.__class__, self).get_permissions()
 
+class RandomConversationViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ConversationSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    queryset = Conversation.objects.all()
+
+    def get_queryset(self):
+        count = Conversation.objects.count()
+        random_index = randint(0, count - 1)
+        queryset = Conversation.objects.all()[random_index:random_index+1]
+        return queryset
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        conversation = get_object_or_404(queryset)
+        return conversation
 
 class NextCommentViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = CommentSerializer
