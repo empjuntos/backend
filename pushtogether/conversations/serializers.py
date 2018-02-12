@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import routers, serializers, viewsets
 
-from .models import Conversation, Comment, Vote
+from .models import Conversation, Comment, Vote, Category
 
 
 User = get_user_model()
@@ -135,3 +135,9 @@ class ConversationSerializer(serializers.ModelSerializer):
         if user.is_authenticated():
             return obj.get_user_participation_ratio(user)
         return
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'styles', 'image', 'image_caption')

@@ -7,7 +7,8 @@ from .views import (
     CommentReportViewSet,
     VoteViewSet,
     AuthorViewSet,
-    RandomConversationViewSet
+    RandomConversationViewSet,
+    CategoryViewSet
 )
 from django.conf.urls import url
 
@@ -22,6 +23,7 @@ router.register(r'comments-report', CommentReportViewSet,
                 base_name='comment-report')
 router.register(r'next_comment', NextCommentViewSet,
                 base_name='conversation-next-comment')
+router.register(r'categories', CategoryViewSet, base_name='category')
 
 urlpatterns = [
     url(
