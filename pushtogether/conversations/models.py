@@ -141,6 +141,10 @@ class Conversation(models.Model):
     def total_comments(self):
         return self.comments.count()
 
+    @property
+    def category_name(self):
+        return self.category.name
+
     def get_user_participation_ratio(self, user):
         others_approved_comments = self.comments.filter(
             approval=Comment.APPROVED).exclude(author=user).count()
